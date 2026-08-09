@@ -1,0 +1,201 @@
+name: Desktop Release
+
+# Builds the Tauri desktop app for every supported platform and, on a
+# `desktop-v*` tag, collects the installers into a draft GitHub release.
+#
+#   macOS  Apple Silicon  .dmg / .app.tar.gz   (aarch64, native on the ARM runner)
+#   macOS  Intel          .dmg / .app.tar.gz   (x86_64, cross-compiled on the ARM runner)
+#   Linux  x86_64         .AppImage / .deb / .rpm
+#   Windows x86_64        .msi / .exe (NSIS)
+
+on:
+  push:
+    tags:
+      - "desktop-v*"
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: "Also create a draft GitHub release from this run"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "22"
+
+jobs:
+  build:
+    name: Build ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: macos-apple-silicon
+            os: macos-latest
+            target: aarch64-apple-darwin
+          # GitHub's Intel macOS images are being retired, so x86_64 is
+          # cross-compiled from the ARM runner. This is the same mechanism
+          # Tauri's own `universal-apple-darwin` build uses internally.
+          - name: macos-intel
+            os: macos-latest
+            target: x86_64-apple-darwin
+          - name: linux-x86_64
+            os: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+          - name: windows-x86_64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Tauri v2 prerequisites. Note this is libayatana-appindicator3-dev,
+      # not the older libappindicator3-dev — the two conflict.
+      - name: Install Linux system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libxdo-dev \
+            libssl-dev \
+            build-essential \
+            patchelf \
+            file \
+            wget
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "./desktop/src-tauri -> target"
+          # Both macOS targets share a runner OS, so key the cache on the
+          # Rust target or they would clobber each other.
+          key: ${{ matrix.target }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Check tag version matches tauri.conf.json
+        if: startsWith(github.ref, 'refs/tags/desktop-v')
+        shell: bash
+        run: |
+          conf_version=$(node -p "require('./desktop/src-tauri/tauri.conf.json').version")
+          tag_version="${GITHUB_REF_NAME#desktop-v}"
+          if [ "$conf_version" != "$tag_version" ]; then
+            echo "::warning::Tag is $GITHUB_REF_NAME but tauri.conf.json says $conf_version — installers will be named $conf_version."
+          else
+            echo "Version $conf_version matches tag $GITHUB_REF_NAME."
+          fi
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          # All optional. tauri-action skips signing/notarization entirely
+          # when these are unset, so the workflow works on a bare repo.
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          projectPath: desktop
+          args: --target ${{ matrix.target }}
+
+      - name: Upload installers
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.dmg
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.app.tar.gz
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.AppImage
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.deb
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.rpm
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.msi
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.exe
+            desktop/src-tauri/target/${{ matrix.target }}/release/bundle/**/*.sig
+
+  release:
+    name: Draft GitHub release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/desktop-v') || github.event.inputs.publish_release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all installers
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: List collected installers
+        run: |
+          find artifacts -type f | sort
+          if [ -z "$(find artifacts -type f)" ]; then
+            echo "::error::No installers were collected from the build jobs."
+            exit 1
+          fi
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          prerelease: false
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('desktop-build-{0}', github.run_number) }}
+          name: FinanceTracker Desktop ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
+          # Must stay false: .sig and .app.tar.gz only exist when updater
+          # signing is configured, and v2 fails on ANY unmatched pattern.
+          # The step above already guarantees the artifact set is non-empty.
+          fail_on_unmatched_files: false
+          body: |
+            Offline personal finance tracker with i18n support (English, Portuguese BR, Spanish).
+
+            Pick the download for your machine:
+
+            | Platform | File |
+            |---|---|
+            | macOS (Apple Silicon, M1 and newer) | `*_aarch64.dmg` |
+            | macOS (Intel) | `*_x64.dmg` |
+            | Windows | `*_x64_en-US.msi` or `*-setup.exe` |
+            | Linux | `*_amd64.AppImage`, `*_amd64.deb`, or `*.x86_64.rpm` |
+
+            The macOS builds are unsigned unless signing secrets are configured, so
+            first launch needs right-click → Open.
+          files: |
+            artifacts/**/*.dmg
+            artifacts/**/*.app.tar.gz
+            artifacts/**/*.AppImage
+            artifacts/**/*.deb
+            artifacts/**/*.rpm
+            artifacts/**/*.msi
+            artifacts/**/*.exe
+            artifacts/**/*.sig
