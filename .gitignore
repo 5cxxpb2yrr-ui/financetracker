@@ -7,7 +7,8 @@ desktop/node_modules/
 desktop/dist/
 desktop/src-tauri/target/
 desktop/src-tauri/gen/schemas/
-desktop/screenshots/
+# Screenshot mockups (*.html) are tracked; their rendered output is not.
+desktop/screenshots/*.png
 # Created by https://www.toptal.com/developers/gitignore/api/python
 # Edit at https://www.toptal.com/developers/gitignore?templates=python
 
