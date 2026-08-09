@@ -293,7 +293,7 @@
                         <a class="nav-link" href="#faq">FAQ</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="https://github.com/rsantacroce/financetracker" target="_blank">
+                        <a class="nav-link" href="https://github.com/santacroce-tech/financetracker" target="_blank">
                             <i class="bi bi-github"></i> GitHub
                         </a>
                     </li>
@@ -317,7 +317,7 @@
                         <a href="#desktop" class="btn btn-light btn-hero">
                             <i class="bi bi-download"></i> Download Desktop App
                         </a>
-                        <a href="https://github.com/rsantacroce/financetracker" class="btn btn-outline-light btn-hero" target="_blank">
+                        <a href="https://github.com/santacroce-tech/financetracker" class="btn btn-outline-light btn-hero" target="_blank">
                             <i class="bi bi-github"></i> View on GitHub
                         </a>
                         <a href="#pricing" class="btn btn-outline-light btn-hero">
@@ -533,18 +533,33 @@
                         </div>
                     </div>
 
-                    <h6 class="text-uppercase opacity-50 mb-3" style="letter-spacing: 2px; font-size: 0.75rem;">Download for your platform</h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="https://github.com/rsantacroce/financetracker/releases/latest" class="btn btn-outline-light" target="_blank">
-                            <i class="bi bi-apple"></i> macOS
+                    <h6 class="text-uppercase opacity-50 mb-3" style="letter-spacing: 2px; font-size: 0.75rem;">
+                        Download for your platform
+                        <span id="dl-version" class="ms-2 text-white-50" style="letter-spacing: 0; text-transform: none;"></span>
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2" id="dl-buttons">
+                        <a href="https://github.com/santacroce-tech/financetracker/releases/latest" class="btn btn-outline-light" target="_blank" rel="noopener"
+                           data-dl="macos-arm">
+                            <i class="bi bi-apple"></i> macOS <span class="opacity-75">(Apple Silicon)</span>
                         </a>
-                        <a href="https://github.com/rsantacroce/financetracker/releases/latest" class="btn btn-outline-light" target="_blank">
+                        <a href="https://github.com/santacroce-tech/financetracker/releases/latest" class="btn btn-outline-light" target="_blank" rel="noopener"
+                           data-dl="macos-intel">
+                            <i class="bi bi-apple"></i> macOS <span class="opacity-75">(Intel)</span>
+                        </a>
+                        <a href="https://github.com/santacroce-tech/financetracker/releases/latest" class="btn btn-outline-light" target="_blank" rel="noopener"
+                           data-dl="windows">
                             <i class="bi bi-windows"></i> Windows
                         </a>
-                        <a href="https://github.com/rsantacroce/financetracker/releases/latest" class="btn btn-outline-light" target="_blank">
-                            <i class="bi bi-ubuntu"></i> Linux
+                        <a href="https://github.com/santacroce-tech/financetracker/releases/latest" class="btn btn-outline-light" target="_blank" rel="noopener"
+                           data-dl="linux">
+                            <i class="bi bi-ubuntu"></i> Linux <span class="opacity-75">(AppImage)</span>
                         </a>
                     </div>
+                    <p class="opacity-50 mt-3 mb-0" style="font-size: 0.8rem;">
+                        Also available as <a href="https://github.com/santacroce-tech/financetracker/releases/latest" class="link-light" target="_blank" rel="noopener" data-dl="linux-deb">.deb</a>
+                        and <a href="https://github.com/santacroce-tech/financetracker/releases/latest" class="link-light" target="_blank" rel="noopener" data-dl="linux-rpm">.rpm</a>.
+                        macOS builds are unsigned &mdash; right-click &rarr; Open on first launch.
+                    </p>
                 </div>
                 <div class="col-lg-6">
                     <div class="shadow-lg" style="border-radius: 16px; overflow: hidden;">
@@ -595,7 +610,7 @@
                 <div class="col-lg-6">
                     <div class="bg-dark text-white rounded-3 p-4" style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.9rem;">
                         <div class="text-muted mb-2"># Quick start in 3 commands</div>
-                        <div class="mb-1"><span class="text-success">$</span> git clone https://github.com/rsantacroce/financetracker.git</div>
+                        <div class="mb-1"><span class="text-success">$</span> git clone https://github.com/santacroce-tech/financetracker.git</div>
                         <div class="mb-1"><span class="text-success">$</span> cd financetracker && pip install -r requirements.txt</div>
                         <div class="mb-1"><span class="text-success">$</span> python app.py</div>
                         <div class="mt-3 text-muted"># Or with Docker</div>
@@ -628,7 +643,7 @@
                             <li><i class="bi bi-check-circle-fill"></i> Community support</li>
                             <li><i class="bi bi-check-circle-fill"></i> MIT License</li>
                         </ul>
-                        <a href="https://github.com/rsantacroce/financetracker" class="btn btn-primary w-100" target="_blank">
+                        <a href="https://github.com/santacroce-tech/financetracker" class="btn btn-primary w-100" target="_blank">
                             <i class="bi bi-github"></i> Get on GitHub
                         </a>
                     </div>
@@ -647,7 +662,7 @@
                             <li><i class="bi bi-check-circle-fill"></i> macOS, Windows &amp; Linux</li>
                             <li><i class="bi bi-check-circle-fill"></i> MIT License</li>
                         </ul>
-                        <a href="https://github.com/rsantacroce/financetracker/releases/latest" class="btn btn-primary w-100" target="_blank">
+                        <a href="https://github.com/santacroce-tech/financetracker/releases/latest" class="btn btn-primary w-100" target="_blank">
                             <i class="bi bi-download"></i> Download Desktop App
                         </a>
                     </div>
@@ -737,10 +752,10 @@
             <h2 class="fw-bold mb-3">Ready to Take Control?</h2>
             <p class="mb-4">Start tracking your finances today. 100% free, open source. Self-host it or download the desktop app.</p>
             <div class="d-flex justify-content-center flex-wrap gap-3">
-                <a href="https://github.com/rsantacroce/financetracker/releases/latest" class="btn btn-light btn-lg" target="_blank">
+                <a href="https://github.com/santacroce-tech/financetracker/releases/latest" class="btn btn-light btn-lg" target="_blank">
                     <i class="bi bi-download"></i> Download Desktop App
                 </a>
-                <a href="https://github.com/rsantacroce/financetracker" class="btn btn-outline-light btn-lg" target="_blank">
+                <a href="https://github.com/santacroce-tech/financetracker" class="btn btn-outline-light btn-lg" target="_blank">
                     <i class="bi bi-github"></i> Self-Host from GitHub
                 </a>
             </div>
@@ -783,8 +798,8 @@
                 <div class="col-md-2 mb-4">
                     <h6>Connect</h6>
                     <ul class="list-unstyled">
-                        <li><a href="https://github.com/rsantacroce/financetracker" target="_blank"><i class="bi bi-github"></i> GitHub</a></li>
-                        <li><a href="https://github.com/rsantacroce/financetracker/issues" target="_blank"><i class="bi bi-bug"></i> Issues</a></li>
+                        <li><a href="https://github.com/santacroce-tech/financetracker" target="_blank"><i class="bi bi-github"></i> GitHub</a></li>
+                        <li><a href="https://github.com/santacroce-tech/financetracker/issues" target="_blank"><i class="bi bi-bug"></i> Issues</a></li>
                         <li><a href="mailto:support@financetracker.app"><i class="bi bi-envelope"></i> Contact</a></li>
                     </ul>
                 </div>
@@ -835,6 +850,72 @@
     <script>
     function handleCookies(accepted){document.getElementById("cookieBanner").style.display="none";var d=new Date;d.setFullYear(d.getFullYear()+1);document.cookie="gdpr_consent="+(accepted?"accepted":"rejected")+";expires="+d.toUTCString()+";path=/;SameSite=Lax"}
     (function(){if(!document.cookie.match(/gdpr_consent=/)){document.getElementById("cookieBanner").style.display="flex"}})();
+    </script>
+
+    <!-- Resolve the newest desktop release straight from the GitHub API so the
+         download buttons point at real installers instead of the releases page.
+         Every button already has a working releases/latest href, so if the API
+         is unreachable or rate-limited the page simply keeps that fallback. -->
+    <script>
+    (function () {
+      var REPO = "santacroce-tech/financetracker";
+
+      // First matching pattern wins, so put the more specific ones first.
+      var MATCHERS = {
+        "macos-arm":   [/aarch64\.dmg$/i, /arm64\.dmg$/i],
+        "macos-intel": [/x64\.dmg$/i, /x86_64\.dmg$/i, /intel\.dmg$/i],
+        "windows":     [/\.msi$/i, /-setup\.exe$/i, /\.exe$/i],
+        "linux":       [/\.AppImage$/i],
+        "linux-deb":   [/\.deb$/i],
+        "linux-rpm":   [/\.rpm$/i]
+      };
+
+      function pick(assets, patterns) {
+        for (var p = 0; p < patterns.length; p++) {
+          for (var a = 0; a < assets.length; a++) {
+            if (patterns[p].test(assets[a].name)) return assets[a];
+          }
+        }
+        return null;
+      }
+
+      fetch("https://api.github.com/repos/" + REPO + "/releases/latest", {
+        headers: { Accept: "application/vnd.github+json" }
+      })
+        .then(function (r) {
+          if (!r.ok) throw new Error("GitHub API returned " + r.status);
+          return r.json();
+        })
+        .then(function (release) {
+          var assets = release.assets || [];
+          if (!assets.length) return;
+
+          Object.keys(MATCHERS).forEach(function (key) {
+            var asset = pick(assets, MATCHERS[key]);
+            var nodes = document.querySelectorAll('[data-dl="' + key + '"]');
+            for (var i = 0; i < nodes.length; i++) {
+              if (asset) {
+                nodes[i].href = asset.browser_download_url;
+                nodes[i].removeAttribute("target");
+              } else {
+                // No build for this platform in the newest release; leave the
+                // releases/latest fallback rather than pointing at nothing.
+                nodes[i].classList.add("disabled");
+                nodes[i].setAttribute("aria-disabled", "true");
+              }
+            }
+          });
+
+          var label = document.getElementById("dl-version");
+          if (label && release.tag_name) {
+            label.textContent = release.tag_name.replace(/^desktop-/, "");
+          }
+        })
+        .catch(function (err) {
+          // Non-fatal: the static releases/latest links still work.
+          if (window.console) console.warn("Release lookup failed:", err.message);
+        });
+    })();
     </script>
 </body>
 </html>
