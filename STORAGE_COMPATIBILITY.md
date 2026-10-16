@@ -41,15 +41,31 @@ Do **not** put an HTTP wrapper around each `execute()` call and claim it is tran
 
 Cloudflare documents that Container disk is ephemeral by default. A Container can reach Worker bindings through outbound handlers, but that transport fact alone does not preserve the application's connection-level SQL semantics. Durable Object SQLite storage is accessible to the Worker/Durable Object runtime, not as a normal SQLite file directly mounted into the Python process.
 
-The next implementation must select one of these approaches deliberately:
+### Options compared
 
-- **Preferred for compatibility:** a durable relational database with native connection-level transactions, accessed by the Python app through a supported driver and encrypted network connection. This requires selecting/provisioning the database provider, configuring credentials as secrets, and testing the provider's connectivity from the Cloudflare Container runtime.
-- **Alternative:** redesign the persistence boundary so logical application operations execute atomically in a Worker/Durable Object service. This is a larger application change; it must define an operation-level API and preserve the existing app's behavior before switching callers.
+| Option | Advantages | Main work / risk |
+|---|---|---|
+| Managed PostgreSQL with a supported Python driver over TLS | Preserves connection-level transactions and request-scoped connection pattern; avoids creating an operation API for every workflow | Requires selecting a provider, storing credentials securely, converting SQLite-specific SQL/schema and validating all behavior; database network access must be tested from the actual Container runtime |
+| Cloudflare D1 behind a private Worker operation API | Keeps durable storage inside Cloudflare; D1 supports SQLite-style SQL and transactional batches | Requires moving each logical multi-statement operation into a Worker endpoint/batch, securing Container-to-Worker access, and explicitly preserving generated-ID/result semantics. A generic SQL proxy is not acceptable |
+| Local SQLite inside the Container | Minimal code changes | **Rejected for production:** container disk is ephemeral and cannot be the durable source of truth |
 
-The provisioned D1 database is currently empty. Do not route production traffic or import real records until the architecture is selected, the end-to-end transaction tests pass, and a backup/restore procedure is proven.
+### Provisional recommendation
+
+For the smallest semantic change to the existing Flask app, evaluate **managed PostgreSQL with a supported Python driver and TLS first**. This is a recommendation to validate, not a provider selection or authorization to create a paid service. The connection test must prove TLS, secret handling, transactions/rollback, and restart persistence in a Cloudflare preview before migrating application data.
+
+Keep the already-provisioned `financetracker-prod` D1 database empty unless the architecture is deliberately changed to the D1 operation-API approach. Do not build a one-query-per-HTTP-call D1 adapter.
+
+## Release gates
+
+- Do not route production traffic or import real records until the architecture is approved, transaction and isolation tests pass, and backup/restore is proven.
+- Use synthetic data in preview.
+- Test both the main app and SaaS persistence; neither may silently fall back to local SQLite in production.
+- Keep credentials in platform secrets, never in source control or image layers.
 
 ## References
 
 - [Cloudflare Containers lifecycle and ephemeral disk](https://developers.cloudflare.com/containers/concepts/architecture/)
+- [Cloudflare Containers outbound traffic](https://developers.cloudflare.com/containers/configuration/outbound-traffic/)
 - [Cloudflare Containers access to Worker bindings](https://developers.cloudflare.com/containers/configuration/workers-connections/)
+- [Cloudflare D1 transactional batch behavior](https://developers.cloudflare.com/d1/worker-api/d1-database/)
 - [Cloudflare database connection options](https://developers.cloudflare.com/workers/databases/connecting-to-databases/)
