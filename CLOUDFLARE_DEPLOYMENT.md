@@ -1,6 +1,7 @@
 # Cloudflare deployment plan
 
-Tracking issue: [#1 — Prepare FinanceTracker for secure Cloudflare production deployment](https://github.com/5cxxpb2yrr-ui/financetracker/issues/1)
+Tracking issue: [#1 — Prepare FinanceTracker for secure Cloudflare production deployment](https://github.com/5cxxpb2yrr-ui/financetracker/issues/1)  
+Storage work: [#3 — Design transaction-safe persistent storage for Flask and SaaS data](https://github.com/5cxxpb2yrr-ui/financetracker/issues/3)
 
 ## Current architecture findings
 
@@ -34,7 +35,9 @@ Tracking issue: [#1 — Prepare FinanceTracker for secure Cloudflare production 
 - [x] Create deployment tracking issue.
 - [x] Provision an empty D1 database in the US jurisdiction.
 - [x] Inspect the current app and container setup.
+- [ ] Inventory SQL/transaction assumptions and select a supported durable storage topology ([issue #3](https://github.com/5cxxpb2yrr-ui/financetracker/issues/3)).
 - [ ] Implement transaction-safe persistent storage.
-- [ ] Add and pass production-readiness tests.
+- [x] Add production secret-configuration tests and CI workflow (run [38891026944](https://github.com/5cxxpb2yrr-ui/financetracker/actions/runs/38891026944) passed).
+- [ ] Add and pass storage and app regression tests.
 - [ ] Configure and validate an isolated Cloudflare preview.
 - [ ] Review and authorize production cutover.
