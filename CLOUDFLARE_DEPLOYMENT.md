@@ -23,20 +23,21 @@ Storage work: [#3 — Design transaction-safe persistent storage for Flask and S
 
 ## Implementation sequence
 
-1. Inventory existing database assumptions and choose a supported durable storage topology. See [STORAGE_COMPATIBILITY.md](./STORAGE_COMPATIBILITY.md).
-2. Implement the selected storage layer and migrate both the main app and SaaS database access deliberately; do not leave a hidden SQLite file as a fallback in production.
-3. Add tests for registration, account creation, transaction writes, CSV import, email-transaction approval, rollback behavior, restart persistence, and cross-user isolation.
-4. Add a Cloudflare Workers + Containers entry point and bind only the required services. Confirm current account support/limits because Containers are a beta product.
-5. Deploy to an isolated preview with synthetic test data. Verify login, core flows, persistence after container stop/restart, and logs.
-6. Only after checks pass, prepare a reviewed production cutover and rollback plan.
+1. Inventory existing database assumptions and compare durable-storage options in [STORAGE_COMPATIBILITY.md](./STORAGE_COMPATIBILITY.md). The current provisional recommendation is to evaluate managed PostgreSQL with a supported Python driver/TLS first; this is not a provider selection or approval to create a paid service.
+2. Select/provision the storage topology only after its connection, transaction, security, and cost requirements are understood.
+3. Implement the selected storage layer and migrate both the main app and SaaS database access deliberately; do not leave a hidden SQLite file as a fallback in production.
+4. Add tests for registration, account creation, transaction writes, CSV import, email-transaction approval, rollback behavior, restart persistence, and cross-user isolation.
+5. Add a Cloudflare Workers + Containers entry point and bind only the required services. Confirm current account support/limits because Containers are a beta product.
+6. Deploy to an isolated preview with synthetic test data. Verify login, core flows, persistence after container stop/restart, and logs.
+7. Only after checks pass, prepare a reviewed production cutover and rollback plan.
 
 ## Current status
 
 - [x] Create deployment tracking issue.
 - [x] Provision an empty D1 database in the US jurisdiction.
 - [x] Inspect the current app and container setup.
-- [x] Inventory SQL/transaction assumptions in [STORAGE_COMPATIBILITY.md](./STORAGE_COMPATIBILITY.md).
-- [ ] Select/provision the durable storage topology and validate connection/transaction behavior ([issue #3](https://github.com/5cxxpb2yrr-ui/financetracker/issues/3)).
+- [x] Inventory SQL/transaction assumptions and compare storage approaches in [STORAGE_COMPATIBILITY.md](./STORAGE_COMPATIBILITY.md).
+- [ ] Approve/select the durable storage topology and validate connection/transaction behavior ([issue #3](https://github.com/5cxxpb2yrr-ui/financetracker/issues/3)).
 - [ ] Implement transaction-safe persistent storage.
 - [x] Add production secret-configuration tests and CI workflow (run [38891026944](https://github.com/5cxxpb2yrr-ui/financetracker/actions/runs/38891026944) passed).
 - [ ] Add and pass storage and app regression tests.
