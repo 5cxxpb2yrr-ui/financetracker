@@ -16,7 +16,20 @@ def hash_password(password):
     return generate_password_hash(password, method='pbkdf2:sha256')
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+_development_secret = 'dev-secret-key-change-in-production'
+_configured_secret = os.environ.get('SECRET_KEY')
+_runtime_environment = os.environ.get('FLASK_ENV', '').lower()
+
+# Never allow a predictable development key to sign production sessions.
+# Local development remains convenient, but production must fail closed.
+if _runtime_environment == 'production' and (
+    not _configured_secret or _configured_secret == _development_secret
+):
+    raise RuntimeError(
+        'SECRET_KEY must be explicitly configured to a strong, private value in production.'
+    )
+
+app.config['SECRET_KEY'] = _configured_secret or _development_secret
 app.config['DATABASE'] = os.environ.get('DATABASE', 'finance.db')
 app.config['SAAS_MODE'] = os.environ.get('SAAS_MODE', 'false').lower() == 'true'
 app.config['REGISTRATION_ENABLED'] = os.environ.get('REGISTRATION_ENABLED', 'true').lower() == 'true'

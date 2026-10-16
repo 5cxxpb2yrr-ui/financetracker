@@ -13,12 +13,12 @@ services:
     volumes:
       - finance_data:/data
     environment:
-      - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
+      - SECRET_KEY=${SECRET_KEY:?Set SECRET_KEY to a strong random value in your .env file}
       - DATABASE=/data/finance.db
       - REGISTRATION_ENABLED=${REGISTRATION_ENABLED:-true}
       - FLASK_ENV=production
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
       timeout: 10s
       retries: 3
