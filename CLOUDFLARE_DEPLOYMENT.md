@@ -23,8 +23,8 @@ Storage work: [#3 — Design transaction-safe persistent storage for Flask and S
 
 ## Implementation sequence
 
-1. Build a storage compatibility layer that preserves the app's required database semantics, including transaction boundaries, row results, and generated IDs.
-2. Migrate both the main app and SaaS database access deliberately; do not leave a hidden SQLite file as a fallback in production.
+1. Inventory existing database assumptions and choose a supported durable storage topology. See [STORAGE_COMPATIBILITY.md](./STORAGE_COMPATIBILITY.md).
+2. Implement the selected storage layer and migrate both the main app and SaaS database access deliberately; do not leave a hidden SQLite file as a fallback in production.
 3. Add tests for registration, account creation, transaction writes, CSV import, email-transaction approval, rollback behavior, restart persistence, and cross-user isolation.
 4. Add a Cloudflare Workers + Containers entry point and bind only the required services. Confirm current account support/limits because Containers are a beta product.
 5. Deploy to an isolated preview with synthetic test data. Verify login, core flows, persistence after container stop/restart, and logs.
@@ -35,7 +35,8 @@ Storage work: [#3 — Design transaction-safe persistent storage for Flask and S
 - [x] Create deployment tracking issue.
 - [x] Provision an empty D1 database in the US jurisdiction.
 - [x] Inspect the current app and container setup.
-- [ ] Inventory SQL/transaction assumptions and select a supported durable storage topology ([issue #3](https://github.com/5cxxpb2yrr-ui/financetracker/issues/3)).
+- [x] Inventory SQL/transaction assumptions in [STORAGE_COMPATIBILITY.md](./STORAGE_COMPATIBILITY.md).
+- [ ] Select/provision the durable storage topology and validate connection/transaction behavior ([issue #3](https://github.com/5cxxpb2yrr-ui/financetracker/issues/3)).
 - [ ] Implement transaction-safe persistent storage.
 - [x] Add production secret-configuration tests and CI workflow (run [38891026944](https://github.com/5cxxpb2yrr-ui/financetracker/actions/runs/38891026944) passed).
 - [ ] Add and pass storage and app regression tests.
